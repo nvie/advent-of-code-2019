@@ -9,7 +9,7 @@ type Memory = Array<number>;
  * Given a program, run it by executing the instruction at `ptr`, modifying the
  * `mem` object inline.
  */
-function cpu(mem: Memory, ptr: number): Memory {
+export function cpu(mem: Memory, ptr: number = 0): Memory {
   const op = mem[ptr];
   const addr1 = mem[ptr + 1];
   const addr2 = mem[ptr + 2];
