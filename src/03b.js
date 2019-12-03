@@ -1,7 +1,7 @@
 // @flow strict
 
-import { path, section, intersection } from './puzzle-03-part1';
-import type { Coord, XY } from './puzzle-03-part1';
+import { path, section, intersection } from './03a';
+import type { Coord, XY } from './03a';
 
 /**
  * Computes the minimal "wire distance", by looking up the coord in the trace
