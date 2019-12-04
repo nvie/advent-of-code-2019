@@ -1,4 +1,4 @@
-// @flow string
+// @flow strict
 
 import { allCandidates } from './04a';
 
