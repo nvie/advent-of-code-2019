@@ -7,7 +7,7 @@ import type { Coord, XY } from './03a';
  * Computes the minimal "wire distance", by looking up the coord in the trace
  * of the path1.
  */
-function wireDistance(coord: Coord, path: string): number {
+function wireDistanceTo(dest: Coord, path: string): number {
   const sections = path.split(','); // e.g. ['L8', 'U3', ...]
   let start = '0,0';
   let total = 0;
@@ -17,7 +17,7 @@ function wireDistance(coord: Coord, path: string): number {
 
     // If this `pts` contains the target coordinate, then we found it.  Look up
     // the "index" in the array of the ordered steps.
-    const steps = pts.indexOf(coord);
+    const steps = pts.indexOf(dest);
     if (steps < 0) {
       // We didn't find it yet...  Add all the steps from this section, and
       // keep looping
@@ -36,8 +36,8 @@ function wireDistance(coord: Coord, path: string): number {
  * Computes the minimal "wire distance", by looking up the coord in the trace
  * of the path1.
  */
-function distance(coord: Coord, path1: string, path2: string): number {
-  return wireDistance(coord, path1) + wireDistance(coord, path2);
+function distanceTo(dest: Coord, path1: string, path2: string): number {
+  return wireDistanceTo(dest, path1) + wireDistanceTo(dest, path2);
 }
 
 if (require.main === module) {
@@ -48,6 +48,6 @@ if (require.main === module) {
   const p1 = path(wire1);
   const p2 = path(wire2);
   const crossings = Array.from(intersection(p1, p2));
-  const distances = crossings.map(coord => distance(coord, wire1, wire2));
+  const distances = crossings.map(coord => distanceTo(coord, wire1, wire2));
   console.log(Math.min(...distances));
 }

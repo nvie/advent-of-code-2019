@@ -11,9 +11,10 @@ export function toXY(coord: Coord): XY {
 }
 
 /**
- * Takes a "section" input, like "R8" and returns (1) the coordinates that this
- * section covers, starting from the starting point, and (2) the final
- * coordinate, which marks the start of the next section.
+ * Takes a "section" input, like "R8" and returns the coordinates that this
+ * section covers, starting from the starting point.  The last location in that
+ * returned array will be the final coordinate where this path section ends,
+ * and which marks the start of the next section.
  */
 export function section(section: string, start: Coord): Array<Coord> {
   const direction = section.charAt(0);
