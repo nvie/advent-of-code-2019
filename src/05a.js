@@ -90,8 +90,6 @@ export async function cpu(mem: Memory, ptr: number = 0): Promise<Memory> {
     mem[outaddr] = value;
   }
 
-  let r;
-
   const opcode = instruction % 100;
   switch (opcode) {
     case 1: {
