@@ -52,17 +52,6 @@ export async function cpu(mem: Memory, ptr: number = 0): Promise<Memory> {
   const instruction = mem[ptr];
 
   /**
-   * Reads the "argument" to an opcode.  Zero-based, so arg(0) would return the
-   * first argument to an opcode.  Depending on the mode, returns the immediate
-   * value of the argument's memory location, or "resolves" it (positional).
-   */
-  function read(idx: number, mode: Mode = 'POSITIONAL'): number {
-    const addr = ptr + idx + 1;
-    const value = mem[addr];
-    return mode === 'IMMEDIATE' ? value : mem[value];
-  }
-
-  /**
    * Given an instruction and an argument index, returns the read mode to use
    * for that argument.
    */
@@ -76,6 +65,17 @@ export async function cpu(mem: Memory, ptr: number = 0): Promise<Memory> {
       default:
         throw new Error(`Unexpected digit ${bit} at index ${idx} in "${instruction}"`);
     }
+  }
+
+  /**
+   * Reads the "argument" to an opcode.  Zero-based, so arg(0) would return the
+   * first argument to an opcode.  Depending on the mode, returns the immediate
+   * value of the argument's memory location, or "resolves" it (positional).
+   */
+  function read(idx: number): number {
+    const addr = ptr + idx + 1;
+    const value = mem[addr];
+    return mode(idx) === 'IMMEDIATE' ? value : mem[value];
   }
 
   /**
@@ -96,16 +96,16 @@ export async function cpu(mem: Memory, ptr: number = 0): Promise<Memory> {
   switch (opcode) {
     // Add
     case 1: {
-      const a = read(0, mode(0));
-      const b = read(1, mode(1));
+      const a = read(0);
+      const b = read(1);
       put(2, a + b);
       return cpu(mem, ptr + 4);
     }
 
     // Multiply
     case 2: {
-      const a = read(0, mode(0));
-      const b = read(1, mode(1));
+      const a = read(0);
+      const b = read(1);
       const c = a * b;
       put(2, a * b);
       return cpu(mem, ptr + 4);
@@ -119,41 +119,41 @@ export async function cpu(mem: Memory, ptr: number = 0): Promise<Memory> {
     // Console output
     case 4:
       // Just prints a value as a side-effect and goes to the next instruction
-      console.log('out: ' + read(0, mode(0)));
+      console.log('out: ' + read(0));
       return cpu(mem, ptr + 2);
 
     // Jump-if-true
     case 5: {
-      const cmp = read(0, mode(0));
+      const cmp = read(0);
 
       // Compute the next ptr (either set it to the provided location, or
       // advance as normal)
-      const next = cmp !== 0 ? read(1, mode(1)) : ptr + 3;
+      const next = cmp !== 0 ? read(1) : ptr + 3;
       return cpu(mem, next);
     }
 
     // Jump-if-false
     case 6: {
-      const cmp = read(0, mode(0));
+      const cmp = read(0);
 
       // Compute the next ptr (either set it to the provided location, or
       // advance as normal)
-      const next = cmp === 0 ? read(1, mode(1)) : ptr + 3;
+      const next = cmp === 0 ? read(1) : ptr + 3;
       return cpu(mem, next);
     }
 
     // Less than
     case 7: {
-      const a = read(0, mode(0));
-      const b = read(1, mode(1));
+      const a = read(0);
+      const b = read(1);
       put(2, a < b ? 1 : 0);
       return cpu(mem, ptr + 4);
     }
 
     // Equal
     case 8: {
-      const a = read(0, mode(0));
-      const b = read(1, mode(1));
+      const a = read(0);
+      const b = read(1);
       put(2, a === b ? 1 : 0);
       return cpu(mem, ptr + 4);
     }
