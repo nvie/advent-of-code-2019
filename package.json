@@ -13,6 +13,6 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.7.4",
-    "itertools": "^1.5.3"
+    "itertools": "^1.5.4"
   }
 }

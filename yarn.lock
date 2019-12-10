@@ -2351,10 +2351,10 @@ istanbul-reports@^2.2.6:
   dependencies:
     handlebars "^4.1.2"
 
-itertools@^1.5.3:
-  version "1.5.3"
-  resolved "https://registry.yarnpkg.com/itertools/-/itertools-1.5.3.tgz#3466ff34f44d6a9db00fb27d2b4cf299bdc84b33"
-  integrity sha512-O3BB4zq3UpMg6zNv1l7g2cyQoMFaenZ1DgKrhGB2+chkB2HDgsxsbx4qnlJyRNk1gXFtprhXKO9VhLVKXwzIFA==
+itertools@^1.5.4:
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/itertools/-/itertools-1.5.4.tgz#e3d4feee3204754fa4d42bc05159bbbb6e2d28cf"
+  integrity sha512-kzw4zFTM5ykXa+8R3WY8Rh7Nv6XsvqsPaUGrilfPtaOtY4lYSbDbRpes/bKcjrUnrUg/5X114mw46x/zWg6XoA==
   dependencies:
     "@babel/runtime" "^7.6.0"
 
