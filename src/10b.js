@@ -1,5 +1,6 @@
 // @flow strict
 
+import readline from 'readline';
 import fs from 'fs';
 import invariant from 'invariant';
 import {
@@ -11,8 +12,11 @@ import {
   roundrobin,
   sorted,
 } from 'itertools';
-import { parseGrid } from './10a';
+import { serializeXY, parseGrid } from './10a';
 import type { XY, Ratio } from './10a';
+import util from 'util';
+
+const sleep = util.promisify(setTimeout);
 
 // Our found solution from 10a, hardcoded
 const BASE = { x: 8, y: 16 };
@@ -151,14 +155,49 @@ function* sweeps(
   yield* izipMany(...Array.from(iterLineOfSights(asts, transformer)));
 }
 
+function clear() {
+  const blank = '\n'.repeat(
+    // $FlowFixMe
+    process.stdout.rows
+  );
+  console.log(blank);
+  readline.cursorTo(process.stdout, 0, 0);
+  readline.clearScreenDown(process.stdout);
+}
+
 async function main() {
   const mapdata = fs.readFileSync('./data/10-asteroids.txt', 'utf-8');
   const { asteroids, gridsize } = parseGrid(mapdata);
 
-  const kabooms = Array.from(vaporize(asteroids));
-  const winner = kabooms[199];
-  console.log('The 200th zap is: ' + JSON.stringify(winner));
-  console.log('The final answer is: ' + (winner.x * 100 + winner.y));
+  const locations = new Set(asteroids.map(serializeXY));
+  for (const boom of vaporize(asteroids)) {
+    const current = serializeXY(boom);
+
+    clear();
+
+    // Visualize the map
+    for (let y = 0; y < gridsize.y; ++y) {
+      for (let x = 0; x < gridsize.x; ++x) {
+        process.stdout.write(
+          x === BASE.x && y === BASE.y
+            ? ' X '
+            : x === boom.x && y === boom.y
+            ? ' * '
+            : locations.has(serializeXY({ x, y }))
+            ? ' # '
+            : '   '
+        );
+      }
+      process.stdout.write('\n');
+    }
+
+    locations.delete(current);
+    await sleep(200);
+  }
+
+  // const winner = kabooms[199];
+  // console.log('The 200th zap is: ' + JSON.stringify(winner));
+  // console.log('The final answer is: ' + (winner.x * 100 + winner.y));
 }
 
 if (require.main === module) {
