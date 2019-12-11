@@ -14,7 +14,9 @@ async function bruteForce(): Promise<number> {
       mem[1] = noun;
       mem[2] = verb;
       try {
-        await cpu(mem);
+        for await (const output of cpu(mem)) {
+          console.log(output);
+        }
         if (mem[0] === 19690720) {
           // Found solution!
           return 100 * noun + verb;

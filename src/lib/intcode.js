@@ -24,7 +24,10 @@ function digit(n: number, idx: number): number {
  * Given a program, run it by executing instruction starting at position 0,
  * modifying the `mem` instance inline.
  */
-export default async function cpu(mem: Memory): Promise<void> {
+export default async function* cpu(
+  mem: Memory,
+  inputFn: () => number | Promise<number> = askNumber
+): AsyncGenerator<number, void, void> {
   let rbase = 0;
   let ptr = 0;
 
@@ -128,14 +131,14 @@ export default async function cpu(mem: Memory): Promise<void> {
 
       // Ask input
       case 3:
-        put(0, await askNumber());
+        put(0, await inputFn());
         ptr += 2;
         continue;
 
       // Console output
       case 4:
         // Just prints a value as a side-effect and goes to the next instruction
-        console.log('out: ' + read(0));
+        yield read(0);
         ptr += 2;
         continue;
 
