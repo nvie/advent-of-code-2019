@@ -1,9 +1,10 @@
 // @flow strict
 
 import fs from 'fs';
-import { parse } from './08a';
 import invariant from 'invariant';
+import run from './lib/runner';
 import { chunked, zipMany } from 'itertools';
+import { parse } from './08a';
 
 const W = 25;
 const H = 6;
@@ -48,15 +49,13 @@ function merge(layers: Array<Layer>): Layer {
   return layer;
 }
 
-export async function main(data: string) {
+async function main() {
+  const data = fs.readFileSync('./data/08.data.txt', 'utf-8');
   const img = parse(data);
   const layer = merge(img);
   drawLayer(layer);
 }
 
 if (require.main === module) {
-  const data = fs.readFileSync('./data/08.data.txt', 'utf-8');
-  main(data)
-    .then(() => process.exit(0))
-    .catch(e => console.error(e) || process.exit(1));
+  run(main);
 }

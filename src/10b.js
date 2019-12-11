@@ -1,8 +1,10 @@
 // @flow strict
 
-import readline from 'readline';
 import fs from 'fs';
 import invariant from 'invariant';
+import readline from 'readline';
+import run from './lib/runner';
+import util from 'util';
 import {
   heads,
   flatten,
@@ -14,7 +16,6 @@ import {
 } from 'itertools';
 import { serializeXY, parseGrid } from './10a';
 import type { XY, Ratio } from './10a';
-import util from 'util';
 
 const sleep = util.promisify(setTimeout);
 
@@ -247,7 +248,5 @@ async function main() {
 }
 
 if (require.main === module) {
-  main()
-    .then(output => process.exit(0))
-    .catch(e => console.error(e) || process.exit(1));
+  run(main);
 }

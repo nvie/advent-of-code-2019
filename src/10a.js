@@ -2,6 +2,7 @@
 
 import fs from 'fs';
 import invariant from 'invariant';
+import run from './lib/runner';
 import { max, permutations } from 'itertools';
 
 // '#' | '.'
@@ -161,7 +162,5 @@ async function main() {
 }
 
 if (require.main === module) {
-  main()
-    .then(output => process.exit(0))
-    .catch(e => console.error(e) || process.exit(1));
+  run(main);
 }

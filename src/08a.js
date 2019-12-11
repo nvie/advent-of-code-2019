@@ -1,8 +1,9 @@
 // @flow strict
 
 import fs from 'fs';
-import { min, chunked } from 'itertools';
 import invariant from 'invariant';
+import run from './lib/runner';
+import { min, chunked } from 'itertools';
 
 const W = 25;
 const H = 6;
@@ -24,7 +25,8 @@ export function parse(data: string): Image {
   return Array.from(chunked(bytes, LAYER_SIZE));
 }
 
-export async function main(data: string) {
+async function main() {
+  const data = fs.readFileSync('./data/08.data.txt', 'utf-8');
   const img = parse(data);
 
   function numDigits(digit: number) {
@@ -42,8 +44,5 @@ export async function main(data: string) {
 }
 
 if (require.main === module) {
-  const data = fs.readFileSync('./data/08.data.txt', 'utf-8');
-  main(data)
-    .then(() => process.exit(0))
-    .catch(e => console.error(e) || process.exit(1));
+  run(main);
 }
