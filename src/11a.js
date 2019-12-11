@@ -126,7 +126,7 @@ class Robot {
           );
         } else {
           const color = this.getColor(xy);
-          process.stdout.write(color === 'BLACK' ? '.' : '#');
+          process.stdout.write(color === 'BLACK' ? ' ' : '#');
         }
       }
       process.stdout.write('\n');
@@ -136,12 +136,17 @@ class Robot {
   }
 }
 
-async function main() {
+export async function main(startOnWhitePanel: boolean = false) {
   const program = fs.readFileSync('./data/11-robot-painter.txt', 'utf-8');
   const mem = program.split(',').map(Number);
 
   const robot = new Robot();
   robot.visualize();
+
+  if (startOnWhitePanel) {
+    // For 11b, the initial start panel is expected to be WHITE
+    robot.paint('WHITE');
+  }
 
   // Instantiate the brain now, hooking up the required input instruction to
   // the eyes of the robot, so it can read the color of the current panel.
