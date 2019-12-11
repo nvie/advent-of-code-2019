@@ -1,30 +1,7 @@
 // @flow strict
 
 import invariant from 'invariant';
-import readline from 'readline';
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-function ask(question: string): Promise<string> {
-  return new Promise(resolve => {
-    rl.question(question, answer => {
-      resolve(answer);
-    });
-  });
-}
-
-async function input(): Promise<number> {
-  do {
-    const answer = Number(await ask('Enter a number: '));
-    if (!isNaN(answer)) {
-      return answer;
-    }
-  } while (true);
-  throw new Error('Will never get here');
-}
+import { askNumber } from './lib/askInput';
 
 type Memory = Array<number>;
 
@@ -106,7 +83,7 @@ export async function cpu(mem: Memory, ptr: number = 0): Promise<Memory> {
       return cpu(mem, ptr + 4);
     }
     case 3:
-      put(0, await input());
+      put(0, await askNumber());
       return cpu(mem, ptr + 2);
     case 4:
       // Just prints a value as a side-effect and goes to the next instruction

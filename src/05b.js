@@ -2,29 +2,7 @@
 
 import invariant from 'invariant';
 import readline from 'readline';
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
-
-function ask(question: string): Promise<string> {
-  return new Promise(resolve => {
-    rl.question(question, answer => {
-      resolve(answer);
-    });
-  });
-}
-
-async function input(): Promise<number> {
-  do {
-    const answer = Number(await ask('Enter a number: '));
-    if (!isNaN(answer)) {
-      return answer;
-    }
-  } while (true);
-  throw new Error('Will never get here');
-}
+import { askNumber } from './lib/askInput';
 
 type Memory = Array<number>;
 
@@ -120,7 +98,7 @@ export async function cpu(mem: Memory): Promise<void> {
 
       // Ask input
       case 3:
-        put(0, await input());
+        put(0, await askNumber());
         ptr += 2;
         continue;
 
