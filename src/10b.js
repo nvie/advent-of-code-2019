@@ -15,6 +15,7 @@ import {
   sorted,
 } from 'itertools';
 import { serializeXY, parseGrid } from './10a';
+import clear from './lib/clearScreen';
 import type { XY, Ratio } from './10a';
 
 const sleep = util.promisify(setTimeout);
@@ -199,16 +200,6 @@ function* sweeps(
   //
   const lines = Array.from(iterLinesOfSight(asts, transformer));
   yield* heads(...lines);
-}
-
-function clear() {
-  const blank = '\n'.repeat(
-    // $FlowFixMe
-    process.stdout.rows
-  );
-  console.log(blank);
-  readline.cursorTo(process.stdout, 0, 0);
-  readline.clearScreenDown(process.stdout);
 }
 
 async function main() {
