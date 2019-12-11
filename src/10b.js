@@ -4,9 +4,9 @@ import readline from 'readline';
 import fs from 'fs';
 import invariant from 'invariant';
 import {
+  heads,
   flatten,
   groupby,
-  izipMany,
   max,
   permutations,
   roundrobin,
@@ -87,12 +87,10 @@ function* vaporize(asteroids: Array<XY>): Generator<XY, void, void> {
    */
   yield* flatten(
     roundrobin(
-      ...[
-        sweeps(TR, rotate(3)),
-        sweeps(BR, rotate(0)),
-        sweeps(BL, rotate(1)),
-        sweeps(TL, rotate(2)),
-      ]
+      sweeps(TR, rotate(3)),
+      sweeps(BR, rotate(0)),
+      sweeps(BL, rotate(1)),
+      sweeps(TL, rotate(2))
     )
   );
 }
@@ -128,7 +126,34 @@ function rotate(times: number) {
   };
 }
 
-function* iterLineOfSights(
+/**
+ * Given a list of asteroids, yields "lines of sight".  By sorting the list of
+ * asteroids by their slopes and then "grouping" together all the ones that
+ * have the same slope, we line up a list of asteroids that are in the same
+ * line of sight.
+ *
+ * By sorting the asteroids within each line of sight by the distance from
+ * BASE, we make sure they're in the right relative "zap" order.
+ *
+ * Visualized:
+ *
+ *            a    b
+ *
+ *          a  b  c
+ *         A b C
+ *         B
+ *       X
+ *
+ * X = Our home base
+ *
+ * Then we will yield the following values:
+ *
+ *   [A, a, a]
+ *   [B, b, b, b]
+ *   [C, c]
+ *
+ */
+function* iterLinesOfSight(
   asteroids: Array<XY>,
   transformer: XY => XY
 ): Generator<Array<XY>, void, void> {
@@ -138,21 +163,41 @@ function* iterLineOfSights(
     return rp.x === 0 ? 0 : rp.y / rp.x;
   }
 
-  for (let [sl, asts] of groupby(sorted(asteroids, slope), slope)) {
+  for (let [, asts] of groupby(sorted(asteroids, slope), slope)) {
     // Within this group, sort the asts by distance
     yield sorted(asts, xy => distance(BASE, xy));
   }
 }
 
 /**
- * Generates lists of items to wipe during this pass.  Every yielded unit is
- * a list of points to sweep during this pass over this quarter.
+ * Generates lists of items to wipe during this pass over this quarter (i.e.
+ * this one pass over an angle of 90°).  Every yielded unit is a list of points
+ * that are vaporized during this one pass.
  */
 function* sweeps(
   asts: Array<XY>,
   transformer: XY => XY
 ): Generator<Array<XY>, void, void> {
-  yield* izipMany(...Array.from(iterLineOfSights(asts, transformer)));
+  //
+  // Suppose iterLinesOfSight() produces the following output:
+  //
+  //   1. [A, a]
+  //   2. [B, b, b, b]
+  //   3. [C, c, c]
+  //
+  // Then heads() will restructure those as:
+  //
+  //   1. [A, B, C]
+  //   2. [a, b, c]
+  //   3. [b, c]
+  //   4. [b]
+  //
+  // Every such output is exactly the asteroids to vaporize during this pass.
+  //
+  // (Think of them as pivoting columns and rows.)
+  //
+  const lines = Array.from(iterLinesOfSight(asts, transformer));
+  yield* heads(...lines);
 }
 
 function clear() {
@@ -170,8 +215,9 @@ async function main() {
   const { asteroids, gridsize } = parseGrid(mapdata);
 
   const locations = new Set(asteroids.map(serializeXY));
-  for (const boom of vaporize(asteroids)) {
-    const current = serializeXY(boom);
+  const kabooms = Array.from(vaporize(asteroids));
+  for (const kaboom of kabooms) {
+    const current = serializeXY(kaboom);
 
     clear();
 
@@ -180,11 +226,11 @@ async function main() {
       for (let x = 0; x < gridsize.x; ++x) {
         process.stdout.write(
           x === BASE.x && y === BASE.y
-            ? ' X '
-            : x === boom.x && y === boom.y
-            ? ' * '
+            ? ' 🚀 '
+            : x === kaboom.x && y === kaboom.y
+            ? ' 💥 '
             : locations.has(serializeXY({ x, y }))
-            ? ' # '
+            ? ' 🗻 '
             : '   '
         );
       }
@@ -192,12 +238,12 @@ async function main() {
     }
 
     locations.delete(current);
-    await sleep(200);
+    await sleep(50);
   }
 
-  // const winner = kabooms[199];
-  // console.log('The 200th zap is: ' + JSON.stringify(winner));
-  // console.log('The final answer is: ' + (winner.x * 100 + winner.y));
+  const winner = kabooms[199];
+  console.log('The 200th zap was: ' + JSON.stringify(winner));
+  console.log('The final answer is: ' + (winner.x * 100 + winner.y));
 }
 
 if (require.main === module) {
